@@ -11,7 +11,7 @@ const { fetch } = require("undici");
 const SELF_URL = process.env.SELF_URL;
 setInterval(() => {
   fetch(SELF_URL).catch(() => {});
-}, 270000); // every 4.5 mins
+}, 270000); // every 4.5 minutes
 
 const { Client } = require("discord.js-selfbot-v13");
 const client = new Client();
@@ -28,32 +28,57 @@ async function startRandomCountingLoop() {
   const channel = await client.channels.fetch(CHANNEL_ID);
 
   while (true) {
-    const waitTime = randInt(7, 20) * 60 * 1000; // 10–20 mins
+    const waitTime = randInt(7, 20) * 60 * 1000;
     logStatus("Sleeping", `Waiting ${Math.floor(waitTime / 60000)} mins`);
     await sleep(waitTime);
 
-    const latest = (await channel.messages.fetch({ limit: 1 })).first();
-    const latestNumber = parseInt(latest?.content.trim());
+    let retryAttempts = 0;
 
-    if (!latest || isNaN(latestNumber)) {
-      logStatus("Skipping", "Latest message is not a number");
-      continue;
+    while (retryAttempts <= 2) {
+      const latest = (await channel.messages.fetch({ limit: 1 })).first();
+      const latestNumber = parseInt(latest?.content.trim());
+
+      if (!latest || isNaN(latestNumber)) {
+        logStatus("Skipping", "Latest message is not a number");
+        break;
+      }
+
+      if (latest.author.id === client.user.id) {
+        logStatus("Skipping", "Last message was from self — solo not allowed");
+        break;
+      }
+
+      const next = latestNumber + 1;
+
+      await channel.sendTyping();
+      await sleep(randInt(1000, 3000)); // Human-like delay
+
+      const confirm = (await channel.messages.fetch({ limit: 1 })).first();
+      const confirmNum = parseInt(confirm?.content.trim());
+
+      if (
+        !confirm ||
+        confirm.id !== latest.id ||
+        confirmNum !== latestNumber
+      ) {
+        retryAttempts++;
+        if (retryAttempts > 2) {
+          logStatus("Canceled", "Sniped again. Giving up this round.");
+          break;
+        }
+
+        logStatus("Retrying", `Sniped — retrying immediately (attempt ${retryAttempts})`);
+        continue;
+      }
+
+      await channel.send(`${next}`);
+      logStatus("Counting", `Sent ${next}`);
+      break;
     }
-
-    if (latest.author.id === client.user.id) {
-      logStatus("Skipping", "Last message was from self — solo not allowed");
-      continue;
-    }
-
-    const next = latestNumber + 1;
-
-    await channel.sendTyping();
-    await sleep(randInt(1000, 3000)); // human-like delay
-    await channel.send(`${next}`);
-    logStatus("Counting", `Sent ${next}`);
   }
 }
 
+// === Utilities ===
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -67,4 +92,3 @@ function logStatus(status, reason) {
 }
 
 client.login(TOKEN);
-
