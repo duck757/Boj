@@ -1,6 +1,14 @@
 require("dotenv").config();
 require("./keepAlive");
 
+// ✅ Express keepalive for Render health check
+const express = require("express");
+const app = express();
+app.get("/healthz", (_, res) => res.send("OK"));
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`✅ KeepAlive running on port ${process.env.PORT || 3000}`);
+});
+
 const { fetch } = require("undici");
 const SELF_URL = process.env.SELF_URL;
 
@@ -50,7 +58,6 @@ client.on("messageCreate", async (message) => {
   const activePeople = recentCounters.size;
   const isSoloMode = activePeople === 1;
 
-  // ⏳ Skip cooldown
   if (now < skipUntil) {
     const minLeft = Math.ceil((skipUntil - now) / 60000);
     logStatus("Skipping", "On cooldown", { skipMinutes: minLeft });
@@ -59,7 +66,6 @@ client.on("messageCreate", async (message) => {
 
   if (message.author.id === client.user.id) return;
 
-  // 💤 Idle skip
   if (now - lastUserMessage > 2 * 60 * 1000) {
     const mins = randInt(5, 15);
     skipUntil = now + mins * 60 * 1000;
@@ -67,14 +73,12 @@ client.on("messageCreate", async (message) => {
     return;
   }
 
-  // 🎲 Random skip
   const skipChance = Math.random() < Math.random() * 0.5;
   if (skipChance) {
     logStatus("Skipping", "Rolled chance");
     return;
   }
 
-  // 🤖 Smart delay
   const baseDelay = getHumanDelay(activePeople);
   const delay = addJitter(baseDelay);
   logStatus("Thinking", "Group delay", {
@@ -114,7 +118,6 @@ client.on("messageCreate", async (message) => {
     return;
   }
 
-  // ✅ Proceed to count
   const next = number + 1;
   await message.channel.sendTyping();
   await sleep(randInt(1000, 3000));
@@ -143,8 +146,8 @@ function handleSelfCount(isSolo) {
 }
 
 function getHumanDelay(active) {
-  if (active >= 4) return randInt(2000, 5000); // group mode
-  if (active === 1) return randInt(60000, 180000); // solo mode
+  if (active >= 4) return randInt(2000, 5000);
+  if (active === 1) return randInt(60000, 180000);
   return randInt(personalityDelayMin * 1000, personalityDelayMax * 1000);
 }
 
