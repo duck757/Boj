@@ -1,7 +1,5 @@
 require("dotenv").config();
-require("./keepAlive");
 
-// ✅ Express keepalive for Render health check
 const express = require("express");
 const app = express();
 app.get("/healthz", (_, res) => res.send("OK"));
