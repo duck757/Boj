@@ -28,7 +28,23 @@ async function startRandomCountingLoop() {
   const channel = await client.channels.fetch(CHANNEL_ID);
 
   while (true) {
-    const waitTime = randInt(3, 13) * 60 * 1000;
+    const pacificNow = new Date().toLocaleString("en-US", {
+  timeZone: "America/Los_Angeles",
+});
+const hour = new Date(pacificNow).getHours();
+
+let minDelay, maxDelay;
+
+if (hour >= 10 && hour < 21) {
+  minDelay = 3;
+  maxDelay = 7;
+} else {
+  minDelay = 7;
+  maxDelay = 15;
+}
+
+const waitTime = randInt(minDelay, maxDelay) * 60 * 1000;
+logStatus("Sleep Config", `Hour (PT): ${hour} | Range: ${minDelay}–${maxDelay} mins`);
     logStatus("Sleeping", `Waiting ${Math.floor(waitTime / 60000)} mins`);
     await sleep(waitTime);
 
