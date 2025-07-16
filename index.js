@@ -28,25 +28,28 @@ async function startRandomCountingLoop() {
   const channel = await client.channels.fetch(CHANNEL_ID);
 
   while (true) {
-    const pacificNow = new Date().toLocaleString("en-US", {
-  timeZone: "America/Los_Angeles",
-});
-const hour = new Date(pacificNow).getHours();
+    const indiaHour = Number(
+  new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kolkata",
+    hour: "numeric",
+    hour12: false,
+  }).format(new Date())
+);
 
 let minDelay, maxDelay;
 
-if (hour >= 10 && hour < 21) {
+if (indiaHour >= 6 && indiaHour < 21) {
+  // Day: 6 AM – 8:59 PM IST
   minDelay = 3;
   maxDelay = 7;
 } else {
+  // Night: 9 PM – 5:59 AM IST
   minDelay = 7;
   maxDelay = 15;
 }
 
 const waitTime = randInt(minDelay, maxDelay) * 60 * 1000;
-logStatus("Sleep Config", `Hour (PT): ${hour} | Range: ${minDelay}–${maxDelay} mins`);
-    logStatus("Sleeping", `Waiting ${Math.floor(waitTime / 60000)} mins`);
-    await sleep(waitTime);
+logStatus("Sleep Config", `Hour (IST): ${indiaHour} | Range: ${minDelay}–${maxDelay} mins`);
 
     let retryAttempts = 0;
 
