@@ -19,6 +19,13 @@ const client = new Client();
 const TOKEN = process.env.DISCORD_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
 
+const delayCycle = [
+  { base: 2, range: 0.2 },
+  { base: 5, range: 0.2 },
+  { base: 13, range: 0.2 },
+];
+let delayIndex = 0;
+
 client.on("ready", () => {
   console.log(`[Login] Logged in as ${client.user.username}`);
   startRandomCountingLoop();
@@ -28,8 +35,13 @@ async function startRandomCountingLoop() {
   const channel = await client.channels.fetch(CHANNEL_ID);
 
   while (true) {
-    const waitTime = randInt(3, 13) * 60 * 1000;
-    logStatus("Sleeping", `Waiting ${Math.floor(waitTime / 60000)} mins`);
+    const { base, range } = delayCycle[delayIndex % delayCycle.length];
+    delayIndex++;
+
+    const waitMins = randFloat(base - range, base + range);
+    const waitTime = Math.floor(waitMins * 60 * 1000);
+
+    logStatus("Sleeping", `Waiting ${waitMins.toFixed(2)} minutes`);
     await sleep(waitTime);
 
     let retryAttempts = 0;
@@ -83,6 +95,10 @@ function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function randFloat(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
 function sleep(ms) {
   return new Promise((res) => setTimeout(res, ms));
 }
@@ -92,4 +108,3 @@ function logStatus(status, reason) {
 }
 
 client.login(TOKEN);
-
