@@ -20,8 +20,8 @@ const TOKEN = process.env.DISCORD_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
 
 const delayCycle = [
-  { base: 2, range: 0.2 },
-  { base: 5, range: 0.2 },
+  { base: 4, range: 0.2 },
+  { base: 7, range: 0.2 },
   { base: 13, range: 0.2 },
 ];
 let delayIndex = 0;
