@@ -1,14 +1,25 @@
+const express = require("express");
+const app = express();
+app.get("/healthz", (_, res) => res.send("OK"));
+app.listen(3000, () => {
+  console.log(`✅ KeepAlive running on port 3000`);
+});
 
-require("dotenv").config();
+const { fetch } = require("undici");
+const SELF_URL = "https://your-render-url.onrender.com"; // <-- Replace this
+setInterval(() => {
+  fetch(SELF_URL).catch(() => {});
+}, 270000); // every 4.5 minutes
+
 const { Client } = require("discord.js-selfbot-v13");
-
-const TOKEN = process.env.BOT2_TOKEN;
-const CHANNEL_ID = process.env.CHANNEL_ID_2;
-
 const client = new Client();
 
+// === Hardcoded Token & Channel ID ===
+const TOKEN = "MTM1MTc1OTEwMDkyMDIwNTM2NQ.GyvpjG.4TjRrZATaH6qwSs80MWi9D0DtoQeehfkAMO9yU";     // <-- Replace this
+const CHANNEL_ID = "1285349949193850901";        // <-- Replace this
+
 client.on("ready", () => {
-  console.log(`[Bot2] Logged in as ${client.user.username}`);
+  console.log(`[Login] Logged in as ${client.user.username}`);
   startRandomCountingLoop();
 });
 
@@ -76,7 +87,7 @@ function sleep(ms) {
 }
 
 function logStatus(status, reason) {
-  console.log(`[Bot2][${status}] ${reason}`);
+  console.log(`[${status}] ${reason}`);
 }
 
 client.login(TOKEN);
