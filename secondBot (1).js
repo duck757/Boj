@@ -15,7 +15,7 @@ const { Client } = require("discord.js-selfbot-v13");
 const client = new Client();
 
 // === Hardcoded Token & Channel ID ===
-const TOKEN = "MTM1MTc1OTEwMDkyMDIwNTM2NQ.GyvpjG.4TjRrZATaH6qwSs80MWi9D0DtoQeehfkAMO9yU";     // <-- Replace this
+const TOKEN = "MTM1MTc1OTEwMDkyMDIwNTM2NQ.GtMfT8.2V7vvAE5HarUsmNx-h2O9EI7Uyrx4LmpIGZ5GA";     // <-- Replace this
 const CHANNEL_ID = "1285349949193850901";        // <-- Replace this
 
 client.on("ready", () => {
@@ -27,7 +27,7 @@ async function startRandomCountingLoop() {
   const channel = await client.channels.fetch(CHANNEL_ID);
 
   while (true) {
-    const waitTime = randInt(3, 13) * 60 * 1000;
+    const waitTime = randInt(5, 15) * 60 * 1000;
     logStatus("Sleeping", `Waiting ${Math.floor(waitTime / 60000)} mins`);
     await sleep(waitTime);
 
