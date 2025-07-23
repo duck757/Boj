@@ -19,16 +19,37 @@ const client = new Client();
 const TOKEN = process.env.DISCORD_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
 
+let isCountingPaused = false;
+
 client.on("ready", () => {
   console.log(`[Login] Logged in as ${client.user.username}`);
   startRandomCountingLoop();
+});
+
+// Pause counting on any ping in any channel
+client.on("messageCreate", async (msg) => {
+  if (msg.mentions.has(client.user)) {
+    isCountingPaused = true;
+    logStatus("Paused", `Bot was pinged in #${msg.channel.name}`);
+
+    // Auto-resume after 30 minutes
+    setTimeout(() => {
+      isCountingPaused = false;
+      logStatus("Resumed", "Pause duration over");
+    }, 30 * 60 * 1000);
+  }
 });
 
 async function startRandomCountingLoop() {
   const channel = await client.channels.fetch(CHANNEL_ID);
 
   while (true) {
-    const waitTime = randInt(10, 50) * 60 * 1000;
+    while (isCountingPaused) {
+      logStatus("Paused", "Waiting until unpaused...");
+      await sleep(60000); // Check every 1 minute
+    }
+
+    const waitTime = randInt(2, 3) * 60 * 1000;
     logStatus("Sleeping", `Waiting ${Math.floor(waitTime / 60000)} mins`);
     await sleep(waitTime);
 
