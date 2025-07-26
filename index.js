@@ -49,7 +49,7 @@ async function startRandomCountingLoop() {
       await sleep(60000); // Check every 1 minute
     }
 
-    const waitTime = randInt(2, 3) * 60 * 1000;
+    const waitTime = randInt(2, 30) * 60 * 1000;
     logStatus("Sleeping", `Waiting ${Math.floor(waitTime / 60000)} mins`);
     await sleep(waitTime);
 
