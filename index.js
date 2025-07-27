@@ -26,8 +26,8 @@ client.on("ready", () => {
   startRandomCountingLoop();
 });
 
-// Pause counting on any ping in any channel
 client.on("messageCreate", async (msg) => {
+  // === Pause on Ping ===
   if (msg.mentions.has(client.user)) {
     isCountingPaused = true;
     logStatus("Paused", `Bot was pinged in #${msg.channel.name}`);
@@ -38,15 +38,13 @@ client.on("messageCreate", async (msg) => {
       logStatus("Resumed", "Pause duration over");
     }, 30 * 60 * 1000);
   }
-});
 
-const GIVEAWAY_EMOJI = "🎉";
-const giveawayChannelIds = [
-  "1078181149333004368",
-  "1359710675005603881",
-];
+  // === Giveaway Auto-Join ===
+  const giveawayChannelIds = [
+    "1078181149333004368",
+    "1359710675005603881",
+  ];
 
-client.on("messageCreate", async (msg) => {
   try {
     if (
       giveawayChannelIds.includes(msg.channel.id) &&
@@ -56,7 +54,7 @@ client.on("messageCreate", async (msg) => {
         msg.embeds[0]?.description?.toLowerCase().includes("giveaway")
       )
     ) {
-      await msg.react(GIVEAWAY_EMOJI);
+      await msg.react("🎉");
       logStatus("Giveaway", `🎉 Joined giveaway in #${msg.channel.name}`);
     }
   } catch (err) {
