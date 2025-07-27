@@ -4,6 +4,8 @@ const IGNORED_USERS = process.env.IGNORED_USERS
   ? process.env.IGNORED_USERS.split(",").map(id => id.trim())
   : [];
 
+console.log("[DEBUG] Loaded IGNORED_USERS:", IGNORED_USERS);
+
 const express = require("express");
 const app = express();
 app.get("/healthz", (_, res) => res.send("OK"));
