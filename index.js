@@ -40,6 +40,30 @@ client.on("messageCreate", async (msg) => {
   }
 });
 
+const GIVEAWAY_EMOJI = "🎉";
+const giveawayChannelIds = [
+  "1078181149333004368",
+  "1359710675005603881",
+];
+
+client.on("messageCreate", async (msg) => {
+  try {
+    if (
+      giveawayChannelIds.includes(msg.channel.id) &&
+      msg.embeds.length &&
+      (
+        msg.content.toLowerCase().includes("react with 🎉") ||
+        msg.embeds[0]?.description?.toLowerCase().includes("giveaway")
+      )
+    ) {
+      await msg.react(GIVEAWAY_EMOJI);
+      logStatus("Giveaway", `🎉 Joined giveaway in #${msg.channel.name}`);
+    }
+  } catch (err) {
+    logStatus("Error", `Giveaway reaction failed: ${err.message}`);
+  }
+});
+
 async function startRandomCountingLoop() {
   const channel = await client.channels.fetch(CHANNEL_ID);
 
