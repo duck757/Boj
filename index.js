@@ -1,8 +1,9 @@
 require("dotenv").config();
 
-const IGNORED_USERS = process.env.IGNORED_USERS
-  ? process.env.IGNORED_USERS.split(",").map(id => id.trim())
-  : [];
+const IGNORED_USERS = [
+  "1393467249511239821",
+  "1351759100920205365"
+];
 
 console.log("[DEBUG] Loaded IGNORED_USERS:", IGNORED_USERS);
 
@@ -90,6 +91,11 @@ async function startRandomCountingLoop() {
       const latest = (await channel.messages.fetch({ limit: 1 })).first();
       const latestNumber = parseInt(latest?.content.trim());
 
+      if (IGNORED_USERS.includes(latest.author.id)) {
+  logStatus("Ignored", `Last message was by ignored user (${latest.author.username}) — skipping`);
+  break;
+      }
+      
       if (!latest || isNaN(latestNumber)) {
         logStatus("Skipping", "Latest message is not a number");
         break;
