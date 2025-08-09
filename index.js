@@ -24,12 +24,12 @@ async function startRandomCountingLoop() {
         logStatus("Skipping", "Latest message is not a number");
         break;
       }
-
-      // ✅ Check if latest author is in allowed list
+  
       if (!ALLOWED_IDS.includes(latest.author.id)) {
-        logStatus("Skipping", `Last number sent by ${latest.author.tag} not in allowed list`);
-        break;
-      }
+  const name = latest.author?.tag || latest.author?.id || "Unknown User";
+  logStatus("Skipping", `Last number sent by ${name} not in allowed list`);
+  break;
+}
 
       if (latest.author.id === client.user.id) {
         logStatus("Skipping", "Last message was from self — solo not allowed");
