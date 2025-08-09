@@ -1,34 +1,16 @@
-require("dotenv").config();
-
-const express = require("express");
-const app = express();
-app.get("/healthz", (_, res) => res.send("OK"));
-app.listen(process.env.PORT || 3000, () => {
-  console.log(`✅ KeepAlive running on port ${process.env.PORT || 3000}`);
-});
-
-const { fetch } = require("undici");
-const SELF_URL = process.env.SELF_URL;
-setInterval(() => {
-  fetch(SELF_URL).catch(() => {});
-}, 270000); // every 4.5 minutes
-
-const { Client } = require("discord.js-selfbot-v13");
-const client = new Client();
-
-const TOKEN = process.env.DISCORD_TOKEN;
-const CHANNEL_ID = process.env.CHANNEL_ID;
-
-client.on("ready", () => {
-  console.log(`[Login] Logged in as ${client.user.username}`);
-  startRandomCountingLoop();
-});
+// Add your allowed member IDs here
+const ALLOWED_IDS = [
+  "651755637499232256", // example
+  "981272700351828050",
+  "518862912392003584",
+  "699926664188002354"
+];
 
 async function startRandomCountingLoop() {
   const channel = await client.channels.fetch(CHANNEL_ID);
 
   while (true) {
-    const waitTime = randInt(1, 50) * 60 * 1000;
+    const waitTime = randInt(1, 7) * 60 * 1000;
     logStatus("Sleeping", `Waiting ${Math.floor(waitTime / 60000)} mins`);
     await sleep(waitTime);
 
@@ -40,6 +22,12 @@ async function startRandomCountingLoop() {
 
       if (!latest || isNaN(latestNumber)) {
         logStatus("Skipping", "Latest message is not a number");
+        break;
+      }
+
+      // ✅ Check if latest author is in allowed list
+      if (!ALLOWED_IDS.includes(latest.author.id)) {
+        logStatus("Skipping", `Last number sent by ${latest.author.tag} not in allowed list`);
         break;
       }
 
@@ -77,18 +65,3 @@ async function startRandomCountingLoop() {
     }
   }
 }
-
-// === Utilities ===
-function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function sleep(ms) {
-  return new Promise((res) => setTimeout(res, ms));
-}
-
-function logStatus(status, reason) {
-  console.log(`[${status}] ${reason}`);
-}
-
-client.login(TOKEN);
